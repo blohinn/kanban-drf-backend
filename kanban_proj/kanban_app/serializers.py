@@ -5,6 +5,10 @@ from .models import Board, Column, Card
 
 
 class CardSerializer(serializers.ModelSerializer):
+    column = serializers.PrimaryKeyRelatedField(queryset=Column.objects.all(), style={
+        'base_template': 'input.html'
+    })
+
     class Meta:
         model = Card
         fields = '__all__'
@@ -12,7 +16,7 @@ class CardSerializer(serializers.ModelSerializer):
 
 
 class ColumnSerializer(serializers.ModelSerializer):
-    cards = serializers.SerializerMethodField(read_only=False)
+    cards = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Column
@@ -25,7 +29,7 @@ class ColumnSerializer(serializers.ModelSerializer):
 
 
 class BoardSerializer(serializers.ModelSerializer):
-    columns = SerializerMethodField()
+    columns = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Board

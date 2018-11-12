@@ -25,5 +25,8 @@ urlpatterns = [
 
     # Auth
     path('login/', LoginView.as_view(), name='login'),
-    path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider'))
+    path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+
+    # Kanban API
+    path('api/kanban/', include('kanban_app.urls', namespace='kanban_app'))
 ]
