@@ -39,7 +39,9 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'oauth2_provider',
-    'rest_framework'
+    'rest_framework',
+
+    'kanban_app'
 ]
 
 MIDDLEWARE = [
