@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+
+  nginx:
+    image: nginx:latest
+    ports:
+    - '80:80'
+    volumes:
+    - ./nginx/conf.d:/etc/nginx/conf.d
+    - ./kanban_proj/static:/kanban_backend/kanban_proj/static
+    links:
+    - web:web
+    depends_on:
+    - web
+
+  web:
+    build: ./
+    command: gunicorn --chdir /kanban_backend/kanban_proj/ kanban_proj.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+    - ./:/kanban_backend
+    environment:
+      DJANGO_SETTINGS_MODULE: kanban_proj.settings_staging
+    links:
+    - postgres:postgres
+    depends_on:
+    - postgres
+
+
+  postgres:
+    image: postgres:11.1
+    volumes:
+    - ./dockerdatastaging/psql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'db_username'
+      POSTGRES_PASSWORD: 'db_password'
+      POSTGRES_DB: 'db_db'
+    ports:
+    - '5432:5432'
