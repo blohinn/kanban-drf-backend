@@ -1,8 +1,12 @@
-from rest_framework import generics
+from django.db.models import F
+from django.http import Http404
+from rest_framework import generics, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .serializers import BoardSerializer, ColumnSerializer, CardSerializer
+from .serializers import BoardSerializer, ColumnSerializer, CardSerializer, ReorderColumnCardsSerializer
 from .models import Board, Column, Card
 
 
@@ -91,3 +95,48 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
         if serializer.validated_data['column'].board.owner != self.request.user:
             raise PermissionDenied
         serializer.save()
+
+
+class ReorderColumnCards(APIView):
+
+    def get_object(self, pk):
+        try:
+            column = Column.objects.get(pk=pk)
+        except Column.DoesNotExist:
+            raise Http404
+
+        if column.board.owner != self.request.user:
+            raise PermissionDenied
+
+        return column
+
+    def get(self, request, pk):
+        column = self.get_object(pk)
+        cards = column.cards.all()
+
+        order_dict = {}
+        for card in cards:
+            order_dict[card.pk] = card.order
+
+        return Response(order_dict)
+
+    def put(self, request, pk):
+        column = self.get_object(pk)
+        cards = column.cards.all()
+
+        serializer = ReorderColumnCardsSerializer(data=request.data)
+
+        updated = {}
+        if serializer.is_valid():
+            ordered_dict = serializer.validated_data['ordered_dict']
+
+            for card in cards:
+                if str(card.pk) in ordered_dict.keys():
+                    card.order = ordered_dict[str(card.pk)]
+                    card.save()
+                    print('{} now has order {}'.format(card.pk, ordered_dict[str(card.pk)]))
+                    updated[str(card.pk)] = ordered_dict[str(card.pk)]
+
+            return Response(updated)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

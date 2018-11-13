@@ -24,7 +24,7 @@ class ColumnSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'board')
 
     def get_cards(self, instance):
-        cards = instance.cards.all().order_by('-order')
+        cards = instance.cards.all().order_by('order', 'id')
         return CardSerializer(cards, many=True).data
 
 
@@ -39,3 +39,8 @@ class BoardSerializer(serializers.ModelSerializer):
     def get_columns(self, instance):
         columns = instance.columns.all().order_by('id')
         return ColumnSerializer(columns, many=True).data
+
+
+class ReorderColumnCardsSerializer(serializers.Serializer):
+    ordered_dict = serializers.JSONField(required=True)
+
