@@ -57,6 +57,7 @@ class ColumnDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         if serializer.validated_data['board'].owner != self.request.user:
             raise PermissionDenied
+        serializer.save()
 
 
 class CardListByColumn(generics.ListCreateAPIView):
@@ -89,3 +90,4 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         if serializer.validated_data['column'].board.owner != self.request.user:
             raise PermissionDenied
+        serializer.save()
