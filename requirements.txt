@@ -11,4 +11,4 @@ oauthlib==2.1.0
 psycopg2-binary==2.7.6.1
 pytz==2018.7
 requests==2.20.1
-urllib3==1.24.1
+urllib3==1.26.5
